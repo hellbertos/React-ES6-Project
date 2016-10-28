@@ -5,6 +5,8 @@ import Order from './Order';
 import sampleFishes from '../sample-fishes';
 import Fish from './Fish';
 
+import base from '../base';
+
 class App extends React.Component {
 	constructor() {
 		super();
@@ -26,6 +28,43 @@ class App extends React.Component {
 			order: {}
 		};
 	}
+
+// React Method - only invoked once
+// Lifecycle Hook - hook in right before render to sync state
+// Connect to Firebase via Rebase >> base
+componentWillMount() {
+	// Runs immediately before App is rendered
+	this.ref = base.syncState(this.props.params.storeId+'/fishes',
+			{
+				context: this,
+				state: 'fishes'
+			}
+		);
+	// check if any Order data in localStorage
+	const localStorageRef = localStorage.getItem('order-'+this.props.params.storeId);
+
+	if(localStorageRef) {
+		// Update App Order state
+		this.setState({
+
+			order: JSON.parse(localStorageRef)
+		});
+	}
+}
+
+// React Method
+// Lifecycle Hook - unhook from previous binding
+componentWillUnmount() {
+	base.removeBinding(this.ref);
+}
+
+
+// Use Local Storage for Order state
+// JSON stringify b/c localStorage doesn't accept objects
+componentWillUpdate(nextProps, nextState) {
+	localStorage.setItem('order-'+this.props.params.storeId, JSON.stringify(nextState.order));
+}
+
 
 addFish(fish) {
 	// update fishes state
@@ -79,7 +118,7 @@ addToOrder(key) {
 							}
 						</ul>
 				</div>
-				<Order />
+				<Order fishes={this.state.fishes} order={this.state.order} params={this.props.params}/>
 				<Inventory addFish={this.addFish} loadSamples={this.loadSamples} />
 			</div>
 		)
