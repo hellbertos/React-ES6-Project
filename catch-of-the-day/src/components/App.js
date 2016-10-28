@@ -15,6 +15,9 @@ class App extends React.Component {
 		// Bind loadSamples to App Class
 		this.loadSamples = this.loadSamples.bind(this);
 
+		// Bind addToOrder to App Class
+		this.addToOrder = this.addToOrder.bind(this);
+
 
 		// Set Initial State
 		// Similar to getInitialState
@@ -47,6 +50,16 @@ loadSamples() {
 	})
 }
 
+addToOrder(key) {
+	// take a copy of state
+	const order = {...this.state.order};
+	// update or add number of fish ordered
+	order[key] = order[key] + 1 || 1;
+	// update state
+	this.setState({ order });
+
+}
+
 	render() {
 		return (
 			<div className="catch-of-the-day">
@@ -56,10 +69,13 @@ loadSamples() {
 							{/* Use Object.keys to get an array of entries from object
 								Use "map() to loop over each item in resulting array
 								Use details from React to access the inner object properties
+
+								Use INDEX attr to pass KEY down to Fish component
+								to use for dynamic state updates
 							 */}
 							{
 								Object.keys(this.state.fishes)
-								.map(key => <Fish key={key} details={this.state.fishes[key]} />)
+								.map(key => <Fish key={key} index={key} details={this.state.fishes[key]} addToOrder={this.addToOrder} />)
 							}
 						</ul>
 				</div>
